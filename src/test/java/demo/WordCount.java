@@ -15,6 +15,7 @@ public class WordCount {
 				.groupBy(w -> w)
 				.mapValues(list -> list.size())
 				.sortBy((w, count) -> count).reverse()
+				.take(5)
 				.forEach((k, v) -> System.out.println(v + "\t" + k));
 
 	}
