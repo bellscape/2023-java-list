@@ -1,6 +1,7 @@
 package experiment;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -28,6 +29,20 @@ interface ListXAsStream<T> {
 		return ListX.fromList(stream()
 				.flatMap(t -> mapper.apply(t).stream())
 				.collect(Collectors.toList()));
+	}
+
+	default <K, V> MapX<K, V> toMap(Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends V> valueMapper) {
+		return MapX.fromLinkedHashMap(stream()
+				.collect(Collectors.toMap(
+						keyMapper, valueMapper,
+						(u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); },
+						LinkedHashMap::new)));
+	}
+	default <K> MapX<K, ListX<T>> groupBy(Function<? super T, ? extends K> classifier) {
+		return MapX.fromLinkedHashMap(stream()
+				.collect(Collectors.groupingBy(classifier,
+						LinkedHashMap::new,
+						Collectors.collectingAndThen(Collectors.toList(), ListX::fromList))));
 	}
 
 }
