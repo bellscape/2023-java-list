@@ -5,13 +5,13 @@ String sentence = "The quick brown fox jumps over the lazy dog.";
 String[] words = sentence.split("\\W+");
 
 ListX.fromArray(words)
-        .filterNot(w -> w.isEmpty())
-        .map(w -> w.toLowerCase())
-        .groupBy(w -> w)
-        .mapValues(list -> list.size())
-        .sortBy((w, count) -> count).reverse()
-        .take(5)
-        .forEach((k, v) -> System.out.println(v + "\t" + k));
+    .filterNot(w -> w.isEmpty())
+    .map(w -> w.toLowerCase())
+    .groupBy(w -> w)
+    .mapValues(list -> list.size())
+    .sortBy((w, count) -> count).reverse()
+    .take(5)
+    .forEach((k, v) -> System.out.println(v + "\t" + k));
 ```
 
 
