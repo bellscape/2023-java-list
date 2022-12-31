@@ -4,12 +4,20 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 // ≈ UnmodifiableMap<K,V> & UnmodifiableList<Entry<K,V>>
 public class MapX<K, V> implements Map<K, V>, MapXAsStream<K, V> {
 
 	static <K, V> MapX<K, V> fromLinkedHashMap(LinkedHashMap<K, V> map) { return new MapX<>(map); }
+	static <K, V> MapX<K, V> fromStream(Stream<Map.Entry<K, V>> stream) {
+		return new MapX<>(stream
+				.collect(Collectors.toMap(
+						e -> e.getKey(), e -> e.getValue(),
+						(k, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", k)); },
+						LinkedHashMap::new)));
+	}
 
 	protected final LinkedHashMap<K, V> delegate;
 	protected MapX(LinkedHashMap<K, V> delegate) { this.delegate = delegate; }

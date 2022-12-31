@@ -1,16 +1,17 @@
 package experiment;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 // ≈ UnmodifiableList<T>
 public class ListX<T> implements Collection<T>, ListXAsStream<T> {
 
 	public static <T> ListX<T> fromList(List<T> list) { return new ListX<>(list); }
-	public static <T> ListX<T> fromArray(T[] array) { return new ListX<>(Arrays.asList(array)); }
+	public static <T> ListX<T> fromArray(T[] array) { return new ListX<>(List.of(array)); }
+	public static <T> ListX<T> fromStream(Stream<T> stream) { return new ListX<>(stream.collect(Collectors.toList())); }
 
 	protected final List<T> delegate;
 	protected ListX(List<T> delegate) { this.delegate = delegate; }

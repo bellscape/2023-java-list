@@ -1,7 +1,6 @@
 package experiment;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -12,37 +11,49 @@ interface ListXAsStream<T> {
 	Stream<T> stream();
 
 	default ListX<T> filter(Predicate<? super T> predicate) {
-		return ListX.fromList(stream()
-				.filter(predicate)
-				.collect(Collectors.toList()));
+		return ListX.fromStream(stream()
+				.filter(predicate));
 	}
 	default ListX<T> filterNot(Predicate<? super T> predicate) {
 		return filter(predicate.negate());
 	}
 
-	default <R> ListX<R> map(Function<? super T, ? extends R> mapper) {
-		return ListX.fromList(stream()
-				.map(mapper)
-				.collect(Collectors.toList()));
+	default <T2> ListX<T2> map(Function<? super T, ? extends T2> mapper) {
+		return ListX.fromStream(stream()
+				.map(mapper));
 	}
-	default <R> ListX<R> flatMap(Function<? super T, ? extends Collection<? extends R>> mapper) {
-		return ListX.fromList(stream()
-				.flatMap(t -> mapper.apply(t).stream())
-				.collect(Collectors.toList()));
+	default <T2> ListX<T2> flatMap(Function<? super T, ? extends Collection<? extends T2>> mapper) {
+		return ListX.fromStream(stream()
+				.flatMap(t -> mapper.apply(t).stream()));
 	}
 
 	default <K, V> MapX<K, V> toMap(Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends V> valueMapper) {
-		return MapX.fromLinkedHashMap(stream()
-				.collect(Collectors.toMap(
-						keyMapper, valueMapper,
-						(u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); },
-						LinkedHashMap::new)));
+		return MapX.fromStream(stream()
+				.map(t -> Map.entry(keyMapper.apply(t), valueMapper.apply(t))));
 	}
 	default <K> MapX<K, ListX<T>> groupBy(Function<? super T, ? extends K> classifier) {
 		return MapX.fromLinkedHashMap(stream()
 				.collect(Collectors.groupingBy(classifier,
 						LinkedHashMap::new,
 						Collectors.collectingAndThen(Collectors.toList(), ListX::fromList))));
+	}
+
+	default ListX<T> distinct() {
+		return ListX.fromStream(stream()
+				.distinct());
+	}
+	default ListX<T> sorted() {
+		return ListX.fromStream(stream()
+				.sorted());
+	}
+	default <X extends Comparable<? super X>> ListX<T> sortBy(Function<? super T, ? extends X> f) {
+		return ListX.fromStream(stream()
+				.sorted(Comparator.comparing(f)));
+	}
+	default ListX<T> reverse() {
+		List<T> list = stream().collect(Collectors.toList());
+		Collections.reverse(list);
+		return ListX.fromList(list);
 	}
 
 }
